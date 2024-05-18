@@ -247,6 +247,19 @@ class CenterCard {
       .join('\n')
   ))
 
+  static Foot = code(
+    br(),
+    `View the package on `,
+    a('NPM!')
+      .att$('href', 'https://www.npmjs.com/package/moabid')
+      .att$('target', '_blank')
+    ,
+  
+  ).style$({
+    'font-size': '1.25rem',
+    'text-align': 'center',
+  })
+
   // ---
 
   static {
@@ -277,6 +290,8 @@ class CenterCard {
 
     this.ButtonSect2.appendChildren$(...this.Bar1.prepare())
     this.ButtonSect3.appendChildren$(...this.Bar2.prepare())
+
+    this.centeredView.appendChildren$(this.Foot)
   }
 
   static prepare() {

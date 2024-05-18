@@ -1,6 +1,6 @@
 {
   "name": "moabid",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A UID generation alternative.",
   "main": "index.mjs",
   "scripts": {
