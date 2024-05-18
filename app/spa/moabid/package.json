@@ -1,0 +1,25 @@
+{
+  "name": "moabid",
+  "version": "1.0.2",
+  "description": "A UID generation alternative.",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "node ./test.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SpcFORK/moabid.git"
+  },
+  "keywords": [
+    "uuid",
+    "uid",
+    "id",
+    "chunk"
+  ],
+  "author": "SpcFORK",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SpcFORK/moabid/issues"
+  },
+  "homepage": "https://github.com/SpcFORK/moabid#readme"
+}
