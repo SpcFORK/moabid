@@ -1,37 +1,11 @@
-# Asrı
+# MoabID
 
-![Asri](Asri.png)
+MoabID is a unique identifier generation service for applications that require high-performance and resilient ID generation. The goal of MoabID is to provide a distributed system for generating unique IDs that are easily sortable and lexicographically ordered.
 
-## Using Asrı
-It's very simple,
+## Features
 
-Every page with `runner.js` loads a script which loads the page locations entry file in `app/`.
-
-Make a class that assigns to the global scope variable named either `Page`, `Main` or `Load`.
-
-Now, you should be able to run!!
-
-```js
-window.Main = class Main {
-
-  static PageTitle = 'Main';
-
-  /*
-    This class automatically inherits:
-      - The entry element,
-      - The page pathname,
-      - The file location.
-
-    this.entry, this.path, this.entryPath,
-  */
-
-  static preload() {
-
-  }
-
-  constructor(entry) {
-    entry
-  }
-
-}
-```
+- Distributed and scalable
+- High-performance ID generation
+- Lexicographically ordered IDs
+- Supports multiple instances
+- Fault-tolerant
