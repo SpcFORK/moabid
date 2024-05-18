@@ -104,7 +104,7 @@ function identifyMoabID(mid = '') {
     id = mid.slice(separatorIdx + 1),
     timestamp = parseInt(id, 36),
     dateParsed = new Date(timestamp),
-    dateString = dateParsed.toISOString().slice(0, 10)
+    dateString = dateParsed.toISOString()
   return {
     date: dateString,
     randomBytes,
