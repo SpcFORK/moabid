@@ -70,7 +70,7 @@ function chunkJoinArray(array = [], chunkSize = 0) {
  * @param {Function} cb - The callback function to generate random bytes.
  * @returns {string} The generated job ID.
  */
-function doJob(length = 8, cb) {
+function doJob(length = 8, hasVersion = true, cb) {
   const timestamp = Date.now();
   let id = timestamp.toString(36);
   let digilen = digiSum(length);
@@ -80,7 +80,7 @@ function doJob(length = 8, cb) {
 
   let randomBytes = chunkJoinArray(randomBytesArr, digilen).join('').padEnd(length, 'f')
 
-  return `${randomBytes}~${VERSION}~${id}`;
+  return `${randomBytes}${hasVersion ? `~${VERSION}` : ''}~${id}`;
 }
 
 /**
@@ -88,8 +88,8 @@ function doJob(length = 8, cb) {
  * @param {number} length - The length of the MoabID.
  * @returns {string} The generated MoabID.
  */
-function generateMoabID(length = 8) {
-  return doJob(length, randomByte);
+function generateMoabID(length = 8, hasVersion = true) {
+  return doJob(length, hasVersion, randomByte);
 }
 
 /**
@@ -97,8 +97,8 @@ function generateMoabID(length = 8) {
  * @param {number} length - The length of the MoabID.
  * @returns {string} The generated MoabID.
  */
-function quickGenerateMoabID(length = 8) {
-  return doJob(length, quickRandomByte);
+function quickGenerateMoabID(length = 8, hasVersion = true) {
+  return doJob(length, hasVersion, quickRandomByte);
 }
 
 /**

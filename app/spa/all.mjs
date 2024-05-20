@@ -36,25 +36,28 @@ class CenterCard {
     })
   }
 
-  static makeButton(text, clickCB = this.CLICKEVENT) {
+  static makeButton(text, clickCB = this.CLICKEVENT, noEvs = false) {
     let btn = button()
       .text$(text)
       .class$('silk-b')
       .on$('click', clickCB)
-      .on$('mouseenter', () => btn.style$({ color: 'yellow' }))
-      .on$('mouseleave', () => btn.style$({ color: 'white' }))
+
+    !noEvs && btn.on$('mouseenter', () => btn.style$({ color: 'yellow' }))
       .on$('mousedown', () => btn.style$({ color: 'orange' }))
       .on$('mouseup', () => btn.style$({ color: 'white' }))
-      .style$({
-        border: 'none',
-        outline: 'none',
-        color: 'white',
-        width: 'min-content',
-        'font-size': '2rem',
-        'text-align': 'center',
-        'border-radius': '50%',
-        'background-color': '#0002',
-      })
+      .on$('mouseleave', () => btn.style$({ color: 'white' }))
+
+    btn.style$({
+      border: 'none',
+      outline: 'none',
+      color: 'white',
+      cursor: 'pointer',
+      width: 'min-content',
+      'font-size': '2rem',
+      'text-align': 'center',
+      'border-radius': '50%',
+      'background-color': '#0002',
+    })
     return btn;
   }
 
@@ -69,6 +72,38 @@ class CenterCard {
       width: '100%',
     })
   }
+
+  /** Handle Zoom Event (since there isn't a current implementation) */
+  static ZoomHandler = class ZoomHandler {
+    zoom = 0;
+    getZoomPackage = () => ({
+      detail: { zoom: this.zoom },
+    });
+
+    createZoomEvent = () => new CustomEvent("zoom", this.getZoomPackage());
+    dispatchZoomEvent = () => document.dispatchEvent(this.createZoomEvent());
+
+    handleZoomChange() {
+      const currentZoom = visualViewport.width;
+      if (currentZoom == this.zoom) return false;
+      this.zoom = currentZoom;
+      return this.dispatchZoomEvent();
+    }
+
+    /** Run to Start!
+     * @param {Number} time
+     */
+    initialize(time) {
+      return setInterval(() => this.handleZoomChange(), time);
+    }
+
+    /** @param {Number} fps */
+    constructor(fps) {
+      if (fps <= 0) return this;
+      this.initialize(fps);
+    }
+  };
+  static { new this.ZoomHandler() }
 
   static Incrementor = class Incrementor {
     IncSize = 8;
@@ -165,56 +200,34 @@ class CenterCard {
       'align-items': 'center',
     })
 
-  /** Handle Zoom Event (since there isn't a current implementation) */
-  static ZoomHandler = class ZoomHandler {
-    zoom = 0;
-    getZoomPackage = () => ({
-      detail: { zoom: this.zoom },
-    });
-
-    createZoomEvent = () => new CustomEvent("zoom", this.getZoomPackage());
-    dispatchZoomEvent = () => document.dispatchEvent(this.createZoomEvent());
-
-    handleZoomChange() {
-      const currentZoom = visualViewport.width;
-      if (currentZoom == this.zoom) return false;
-      this.zoom = currentZoom;
-      return this.dispatchZoomEvent();
-    }
-
-    /** Run to Start!
-     * @param {Number} time
-     */
-    initialize(time) {
-      return setInterval(() => this.handleZoomChange(), time);
-    }
-
-    /** @param {Number} fps */
-    constructor(fps) {
-      if (fps <= 0) return this;
-      this.initialize(fps);
-    }
-  };
-  static {
-    let zoom = new this.ZoomHandler();
-  }
-
   static {
     const centerizeEvent = () => this.centeredView.style$(this.centerize())
     document.addEventListener('resize', centerizeEvent)
     document.addEventListener('visibilitychange', centerizeEvent)
     document.addEventListener('zoom', centerizeEvent)
 
+    let ctrlPressed = false;
     // On Enter, Gen
     document.addEventListener('keydown', (e) => {
       const { key } = e;
       let click = (el) => el.get$().click();
+
+      // if pressing c copy, if cntrl then c, ignore since we are copying maybe section
+      !ctrlPressed && (
+        key === 'Control' && (ctrlPressed = true),
+        key === 'c' && click(this.CopyButton)
+      );
+
       key === 'Enter' && click(this.GenButton);
-      key === 'c' && click(this.CopyButton);
       key === 'ArrowLeft' && click(this.Bar1.DIncSBut);
       key === 'ArrowRight' && click(this.Bar1.IncSBut);
       key === 'ArrowUp' && click(this.Bar2.DIncSBut);
       key === 'ArrowDown' && click(this.Bar2.IncSBut);
+    })
+
+    document.addEventListener('keyup', (e) => {
+      const { key } = e;
+      ctrlPressed && key === 'Control' && (ctrlPressed = false)
     })
   }
 
@@ -231,7 +244,7 @@ class CenterCard {
     .class$('silk-r')
     .att$('type', 'text')
     .att$('readonly', 'readonly')
-    .text$(moabID.generateMoabID())
+    .text$(moabID.generateMoabID(8, true))
     .style$({
       border: 'none',
       outline: 'none',
@@ -265,6 +278,7 @@ class CenterCard {
   static ButtonSect1 = this.makeButtonSect();
   static ButtonSect2 = this.makeButtonSect();
   static ButtonSect3 = this.makeButtonSect();
+  static ButtonSect4 = this.makeButtonSect();
 
   static CopyButton = this.makeButton('Copy')
 
@@ -279,10 +293,23 @@ class CenterCard {
     this.Bar2.Inc.DisplayName = 'Lines';
   }
 
+  static toggleVersionState = true;
+  static ToggleVersionToggle = this.makeButton('Version', () => {
+    this.toggleVersionState = !this.toggleVersionState;
+    this.toggleVersionColorize();
+  }, true)
+  static toggleVersionColorize() {
+    if (this.toggleVersionState) this.ToggleVersionToggle.style$({ color: 'yellow' });
+    else this.ToggleVersionToggle.style$({ color: 'white' });
+  }
+  static {
+    this.toggleVersionColorize();
+  }
+
   static GenButton = this.makeButton('Generate', () => this.CopyableInput.html$(
     new Array(this.Bar2.Inc.IncSize)
       .fill(0)
-      .map(() => moabID.generateMoabID(this.Bar1.Inc.IncSize))
+      .map(() => moabID.generateMoabID(this.Bar1.Inc.IncSize, this.toggleVersionState))
       .map((v, i, a) => (a.indexOf(v) === i) ? v : this.dupeText)
       .sort((a, b) => a.localeCompare(b))
       .join('\n')
@@ -320,17 +347,21 @@ class CenterCard {
       this.ButtonSect1,
       this.ButtonSect2,
       this.ButtonSect3,
+      this.ButtonSect4,
     );
 
     this.ButtonSect1.appendChildren$(
       this.CopyButton,
       this.GenButton,
-
       // this.makeDummyButton(':'),
     );
 
-    this.ButtonSect2.appendChildren$(...this.Bar1.prepare())
-    this.ButtonSect3.appendChildren$(...this.Bar2.prepare())
+    this.ButtonSect2.appendChildren$(
+      this.ToggleVersionToggle
+    );
+
+    this.ButtonSect3.appendChildren$(...this.Bar1.prepare())
+    this.ButtonSect4.appendChildren$(...this.Bar2.prepare())
 
     this.centeredView.appendChildren$(this.Foot)
   }
