@@ -13,9 +13,9 @@ function digiSum(n = 0) {
 
 // Get a very deviated version hash  thing.
 // import packageJSON from './package.json';
-const packageJSON = (await import('./package.mjs')).default;
-console.log(packageJSON);
-const VERSION = parseInt((packageJSON?.version || '99.99.99').split('.').map(digiSum).join(''), 36);
+try { var packageJSON = (await import('./package.mjs')).default }
+catch (e) { packageJSON = '99.99.99' }
+const VERSION = parseInt((packageJSON?.version || packageJSON).split('.').map(digiSum).join(''), 36);
 
 // ---
 
@@ -104,21 +104,23 @@ function quickGenerateMoabID(length = 8) {
 /**
  * Identifies a MoabID and extracts its meaningful components.
  * @param {string} mid - The MoabID to be identified.
- * @returns {{date: string, randomBytes: string}} An object containing the date and random bytes.
+ * @returns {{date: string, randomBytes: string, version: string}} An object containing the date and random bytes.
  */
 function identifyMoabID(mid = '') {
   let separatorIdx1 = mid.lastIndexOf('~'),
     randomBytesAndVer = mid.slice(0, separatorIdx1),
     separatorIdx2 = randomBytesAndVer.lastIndexOf('~'),
     randomBytes = randomBytesAndVer.slice(0, separatorIdx2),
+    version = randomBytesAndVer.slice(separatorIdx2 + 1),
     id = mid.slice(separatorIdx1 + 1),
     timestamp = parseInt(id, 36),
     dateParsed = new Date(timestamp),
-    dateString = dateParsed.toISOString()
+    dateString = dateParsed.toISOString();
   return {
     date: dateString,
     randomBytes,
-  }
+    version
+  };
 }
 
 export default {

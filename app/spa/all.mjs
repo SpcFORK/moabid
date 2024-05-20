@@ -7,12 +7,14 @@ const NOOP = () => () => { };
 class CenterCard {
   static vv = visualViewport
 
-  static centerStyle = {
+  static centerize = () => ({
     position: 'absolute',
     top: `${this.vv.height / 2}px`,
     left: `${this.vv.width / 2}px`,
     transform: 'translate(-50%, -50%)',
-  }
+  })
+
+  static centerStyle = this.centerize()
 
   static arrStr = (...arr) => arr.join('<br>')
 
@@ -157,17 +159,56 @@ class CenterCard {
       ...this.centerStyle,
       height: '100%',
       display: 'flex',
+      transition: 'all 0.4s ease-in-out',
       'flex-direction': 'column',
       'justify-content': 'center',
       'align-items': 'center',
     })
 
+  /** Handle Zoom Event (since there isn't a current implementation) */
+  static ZoomHandler = class ZoomHandler {
+    zoom = 0;
+    getZoomPackage = () => ({
+      detail: { zoom: this.zoom },
+    });
+
+    createZoomEvent = () => new CustomEvent("zoom", this.getZoomPackage());
+    dispatchZoomEvent = () => document.dispatchEvent(this.createZoomEvent());
+
+    handleZoomChange() {
+      const currentZoom = visualViewport.width;
+      if (currentZoom == this.zoom) return false;
+      this.zoom = currentZoom;
+      return this.dispatchZoomEvent();
+    }
+
+    /** Run to Start!
+     * @param {Number} time
+     */
+    initialize(time) {
+      return setInterval(() => this.handleZoomChange(), time);
+    }
+
+    /** @param {Number} fps */
+    constructor(fps) {
+      if (fps <= 0) return this;
+      this.initialize(fps);
+    }
+  };
   static {
+    let zoom = new this.ZoomHandler();
+  }
+
+  static {
+    const centerizeEvent = () => this.centeredView.style$(this.centerize())
+    document.addEventListener('resize', centerizeEvent)
+    document.addEventListener('visibilitychange', centerizeEvent)
+    document.addEventListener('zoom', centerizeEvent)
+
     // On Enter, Gen
     document.addEventListener('keydown', (e) => {
       const { key } = e;
       let click = (el) => el.get$().click();
-      console.log(key);
       key === 'Enter' && click(this.GenButton);
       key === 'c' && click(this.CopyButton);
       key === 'ArrowLeft' && click(this.Bar1.DIncSBut);
@@ -254,7 +295,7 @@ class CenterCard {
       .att$('href', 'https://www.npmjs.com/package/moabid')
       .att$('target', '_blank')
     ,
-  
+
   ).style$({
     'font-size': '1.25rem',
     'text-align': 'center',
